@@ -17,17 +17,6 @@ const urlDatabase = {
 app.set('view engine', 'ejs')
 
 //ROUTES
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>Word</b></body></html>\n")
-// })
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -50,12 +39,11 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // const longURL = req.body.longURL
   const shortUrl = generateRandomString()
   console.log("body longURL: ", req.body.longURL)
   urlDatabase[shortUrl] = req.body.longURL
   // res.render()
-  res.redirect(`/urls/${shortUrl}`);         // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 app.listen(PORT, () => {
