@@ -33,11 +33,11 @@ const users = {
   }
 }
 
-//returns true if email already exists in database
+//returns user if email exists in database
 const emailCheck = (database, email) => {
   for (const user in database) {
     if (users[user]['email'] === email) {
-      return true
+      return user
     }
   }
   return false;
@@ -94,13 +94,31 @@ app.post("/urls/:shortURL/update", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  console.log(req.body.username)
-  // res.cookie("username", req.body.username)
-  res.redirect('/urls')
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  //get email's Id
+  const user = emailCheck(users, userEmail)
+  console.log(users[user].email)
+
+  // "userRandomID": {
+  //   id: "userRandomID", 
+  //   email: "user@example.com", 
+  //   password: "purple-monkey-dinosaur"
+  // },
+
+  //check if user's email exists
+  if (user) {
+    //check if password matches
+    if (userPassword === users[user].password) {
+      res.cookie("userID", user)
+      res.redirect('/urls')
+    }
+  }
+   res.sendStatus(403)
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id")
+  res.clearCookie("userID")
   res.redirect('/urls')
 })
 
@@ -140,7 +158,10 @@ app.get("/register", (req, res) => {
 
 //login form
 app.get("/login", (req, res) => {
-  res.render("login_form")
+  const templateVars = {
+    user: users[req.cookies.userID]
+  }
+  res.render("login_form", templateVars)
 })
 
 app.listen(PORT, () => {
