@@ -11,16 +11,16 @@
       </div>
       <!-- Add a form that POSTS to LOGIN-->
       <div justify-content="flex-end" >
-      <% if(username){ %>
+      <% if(user){ %>
         <form class="form-inline mx-auto" action="/logout" method="POST">
         <h5>
           <b>Logged in as: </b>
-          <%=username%>
+          <%=user.email%>
         </h5>
         <button type="submit" class="btn btn-outline-dark mx-2">Logout</button>
         </form>
         
-      <% } else{ %>  
+      <% } else { %>  
         <form class="form-inline mx-auto" action="/login" method="POST" >
           <input name="username" placeholder="Username">
           <button type="submit" class="btn btn-outline-dark mx-2">Submit</button>

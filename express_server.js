@@ -11,10 +11,37 @@ function generateRandomString() {
   let sixDigitNum = Math.floor(Math.random()*1000000)
   return sixDigitNum.toString()
 }
+
+
+//list of urls that have been shortened
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+//list of users who have registered
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+//returns true if email already exists in database
+const emailCheck = (database, email) => {
+  for (const user in database) {
+    if (users[user]['email'] === email) {
+      return true
+    }
+  }
+  return false;
+}
 
 app.set('view engine', 'ejs')
 
@@ -22,14 +49,14 @@ app.set('view engine', 'ejs')
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    username: req.cookies["username"],
+    user: users[req.cookies.userID],
     urls: urlDatabase };
   res.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[req.cookies.userID],
   }
   res.render("urls_new", templateVars);
 });
@@ -38,7 +65,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    user: users[req.cookies.userID],
   };
   res.render("urls_show", templateVars)
 })
@@ -68,13 +95,52 @@ app.post("/urls/:shortURL/update", (req, res) => {
 
 app.post("/login", (req, res) => {
   console.log(req.body.username)
-  res.cookie("username", req.body.username)
+  // res.cookie("username", req.body.username)
   res.redirect('/urls')
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username")
+  res.clearCookie("user_id")
   res.redirect('/urls')
+})
+
+//handles the submission of the registration form to the object
+app.post("/register", (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  //check if blanks (ie: falsy) values were passed into the form
+  if (!userEmail || !userPassword) {
+    res.sendStatus(400)
+  //check if the email already exists in the 'database'
+  } else if (emailCheck(users, userEmail)) {
+    res.sendStatus(400)
+  } else {
+  //create a new user
+  const userId = generateRandomString();
+  users[userId] = {
+      id: userId,
+      email: userEmail,
+      password: userPassword,
+  };
+
+  //passing the user's object (info) into cookies.
+  //this is then used as reference for the user on each page
+  res.cookie("userID", userId)
+
+  res.redirect("/urls")    
+  }
+})
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.userID]
+  }
+  res.render("registration", templateVars)
+})
+
+//login form
+app.get("/login", (req, res) => {
+  res.render("login_form")
 })
 
 app.listen(PORT, () => {
