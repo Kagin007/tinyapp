@@ -79,7 +79,7 @@ app.get("/urls", (req, res) => {
     user: users[cookiesUser],
     urls: filteredByUser,
   };
-//if user is not logged in they are redirected to 'notLoggedIn.ejs' that prompts them to login or register
+  //if user is not logged in they are redirected to 'notLoggedIn.ejs' that prompts them to login or register
   if (!cookiesUser) {
     res.render("notLoggedIn", templateVars);
   } else {
@@ -194,7 +194,7 @@ app.post("/register", (req, res) => {
       password: hashedPassword,
     };
 
-  //passing the user's object (info) into cookies.
+    //passing the user's object (info) into cookies.
     req.session['userID'] = userId;
 
     res.redirect("/urls");

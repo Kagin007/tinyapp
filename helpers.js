@@ -14,8 +14,8 @@ const filterUserID = (database, cookieUser) => {
   for (let key of Object.keys(database)) {
     if (database[key]["userID"] === cookieUser) {
       usersUrlDatabase[key] = {
-        longURL: urlDatabase[key]["longURL"],
-        userID: urlDatabase[key]["userID"],
+        longURL: database[key]["longURL"],
+        userID: database[key]["userID"],
       };
     }
   }
@@ -28,7 +28,8 @@ const generateRandomString = () => {
 };
 
 
-module.exports = { 
+module.exports = {
   getUserByEmail,
   filterUserID,
-  generateRandomString, }
+  generateRandomString,
+};
