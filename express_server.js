@@ -3,10 +3,14 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
 
+//middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+//objects functioning as databases
+//short url as main key
 const urlDatabase = {
   sgq3y6: {
     longURL: "https://www.tsn.ca",
@@ -35,22 +39,22 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "123@example.com",
-    password: "123",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
   },
   aJ48lW: {
     id: "aJ48lW",
     email: "321@example.com",
-    password: "321",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
   },
   aJ48lW: {
     id: "aJ48lW",
     email: "321@example.com",
-    password: "321",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
   },
 };
 
@@ -171,16 +175,17 @@ app.post("/login", (req, res) => {
   const user = emailCheck(users, userEmail);
 
   //check if user's email exists
+  //** BIG CHANGE ** ADDED HASHING to password/
   if (user) {
     //check if password matches
-    if (userPassword === users[user].password) {
+    // if (userPassword === users[user].password) {
+    if (bcrypt.compareSync(userPassword, users[user].password)) {
       //set cookie of logged in user
       res.cookie("userID", user);
       res.redirect("/urls");
     }
-  } else {
-    res.sendStatus(403);
   }
+    res.sendStatus(403);
 });
 
 app.post("/logout", (req, res) => {
@@ -190,6 +195,7 @@ app.post("/logout", (req, res) => {
 
 //handles the submission of the registration form to the object
 app.post("/register", (req, res) => {
+
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   //check if blanks (ie: falsy) values were passed into the form
@@ -199,12 +205,14 @@ app.post("/register", (req, res) => {
   } else if (emailCheck(users, userEmail)) {
     res.sendStatus(400);
   } else {
+    //encrypt password
+    const hashedPassword = bcrypt.hashSync(userPassword, 10);
     //create a new user
     const userId = generateRandomString();
     users[userId] = {
       id: userId,
       email: userEmail,
-      password: userPassword,
+      password: hashedPassword,
     };
 
     //passing the user's object (info) into cookies.
