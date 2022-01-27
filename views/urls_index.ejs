@@ -17,25 +17,23 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
-          <!-- Adam: adding EDIT col-->
+          <!-- EDIT col-->
           <th scope='col'>Edit</th>          
-          <!-- Adam: adding DELETE col-->
+          <!-- DELETE col-->
           <th scope='col'>Delete</th>
         </tr>
       </thead>
       <tbody>
-        <!-- OLD: shortUrl: longUrl -->
-        <!-- NEW: shorturl: {longUrl, userID}-->
         
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
             <td><%= urls[url].longURL %></td>
 
-            <!-- Adam: adding EDIT button-->
+            <!-- EDIT button-->
             <td><form method="GET" action="/urls/<%=url%>"><button type="submit" class="btn btn-outline-primary"> Edit </button></form></td>  
 
-            <!-- Adam: adding DELETE button-->
+            <!-- DELETE button-->
             <td><form method="POST" action="/urls/<%=url%>/delete"><button type="submit" class="btn btn-outline-danger"> Delete </button></form></td>
 
           </tr>

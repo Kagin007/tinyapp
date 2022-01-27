@@ -74,15 +74,15 @@ const users = {
 //main page that displays user's list of URLS.
 app.get("/urls", (req, res) => {
   const cookiesUser = req.session.userID;
-  const filteredByUser = filterUserID(urlDatabase, cookiesUser);
-  const templateVars = {
-    user: users[cookiesUser],
-    urls: filteredByUser,
-  };
-  //if user is not logged in they are redirected to 'notLoggedIn.ejs' that prompts them to login or register
+  //if user is not logged in they are redirected to 'notLoggedIn.ejs' that prompts them to login or register  
   if (!cookiesUser) {
-    res.render("notLoggedIn", templateVars);
+    return res.redirect("/register");
   } else {
+    const filteredByUser = filterUserID(urlDatabase, cookiesUser);
+    const templateVars = {
+      user: users[cookiesUser],
+      urls: filteredByUser,
+    };
     res.render("urls_index", templateVars);
   }
 });

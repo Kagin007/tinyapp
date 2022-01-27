@@ -1,38 +1,44 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav" >
+      <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-<!-- if user is NOT logged in display Register & Login -->
-        <% if (!user) { %>
-        <a class="nav-item nav-link" href="/register">Register</a>
-        <a class="nav-item nav-link" href="/login">Login</a>
-        <% } else { %>  
-<!-- if user IS logged in-->
       </div>
-      <!-- Add a form that POSTS to LOGIN-->
-      <div justify-content="flex-end">
-      <!-- <% if(user){ %> -->
-        <form class="form-inline mx-auto" action="/logout" method="POST">
-        <p>
-          <b>Logged in as: </b>
-          <%=user.email%>
-        </p>
-        <button type="submit" class="btn btn-outline-dark mx-2">Logout</button>
-        </form>
-        
-      <!-- <% } else { %>  
-        <form class="form-inline mx-auto" action="/login" method="POST" >
-          <input name="username" placeholder="Username">
-          <button type="submit" class="btn btn-outline-dark mx-2">Submit</button>
-        </form>
-     <% } %> -->
-    <% } %>      
+        <!-- if user is NOT logged in display Register & Login -->
+          <% if (!user) { %>
+        <div class="d-flex navbar-nav align-items-center ml-auto">            
+          <a class="nav-item nav-link" href="/register">Register</a>
+          <a class="nav-item nav-link" href="/login">Login</a>
+        </div>          
+          <% } else { %>
+          <!-- if user IS logged in -->
+        <div class="navbar-nav d-flex align-items-center justify-content-center ml-auto">
+          <form class="d-flex align-items-center" action="/logout" method="POST">
+            <p class="text-white">
+              <b>Logged in as: </b>
+              <%=user.email%>
+            </p>
+            <p>
+            <button type="submit" class="btn btn-outline-dark mx-2">
+              Logout
+            </button>
+           </p>
+          </form>
+        </div>          
+          <% } %>
       </div>
     </div>
   </nav>
