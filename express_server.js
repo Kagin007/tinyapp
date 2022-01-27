@@ -145,10 +145,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
-  console.log(req.body.newURL)
-  // urlDatabase[shortURL] = req.body
-  urlDatabase[req.params.shortURL].longURL = req.body.newURL
-  res.redirect('/urls')
+  const cookieUser = req.cookies.userID
+  const shortURL = req.params.shortURL
+  if (cookieUser !== urlDatabase[shortURL]['userID']) {
+    console.log('permission to edit *DENIED*')
+  } else {
+    urlDatabase[req.params.shortURL].longURL = req.body.newURL
+    res.redirect('/urls')    
+  }
 })
 
 app.post("/login", (req, res) => {
