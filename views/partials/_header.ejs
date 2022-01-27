@@ -8,10 +8,12 @@
       <div class="navbar-nav" >
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <a class="nav-item nav-link" href="/register">Register</a>
+<!-- if user is NOT logged in display Register & Login -->
         <% if (!user) { %>
+        <a class="nav-item nav-link" href="/register">Register</a>
         <a class="nav-item nav-link" href="/login">Login</a>
         <% } else { %>  
+<!-- if user IS logged in-->
       </div>
       <!-- Add a form that POSTS to LOGIN-->
       <div justify-content="flex-end">
@@ -32,8 +34,6 @@
      <% } %> -->
     <% } %>      
       </div>
-
-
     </div>
   </nav>
 </header>

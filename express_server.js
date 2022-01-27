@@ -14,17 +14,40 @@ function generateRandomString() {
 
 
 //list of urls that have been shortened
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  sgq3y6: {
+    longURL: "https://www.tsn.ca",
+    userID: "userRandomID"
+  },
+  b6UTxQ: {
+      longURL: "https://www.tsn.ca",
+      userID: "aJ48lW"
+  },
+  i3BoGr: {
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
+  },
+  1234: {
+    longURL: "https://www.google.ca",
+    userID: "userRandomID"
+},
+  12345: {
+    longURL: "https://www.cooking.ca",
+    userID: "userRandomID"
+}
 };
 
 //list of users who have registered
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    email: "123@example.com", 
+    password: "123"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -43,18 +66,43 @@ const emailCheck = (database, email) => {
   return false;
 }
 
+//Creates a new Database to render that is unique to the cookies.userID
+const filterUserID = (database, cookieUser) => {
+  let usersUrlDatabase = {};
+  for (let key of Object.keys(database)) {
+    if (database[key]['userID'] === cookieUser) {
+      usersUrlDatabase[key] = {
+        'longURL': urlDatabase[key]['longURL'],
+        'userID': urlDatabase[key]['userID']
+      }
+    }
+  }
+  return usersUrlDatabase
+}
+
 app.set('view engine', 'ejs')
 
 //ROUTES
 
 app.get("/urls", (req, res) => {
-  const templateVars = { 
-    user: users[req.cookies.userID],
-    urls: urlDatabase };
-  res.render("urls_index", templateVars)
+  const cookiesUser = req.cookies.userID
+  const filteredByUser = filterUserID(urlDatabase, cookiesUser)
+    const templateVars = { 
+      user: users[cookiesUser],
+      urls: filteredByUser };
+
+  if (!cookiesUser) {
+    res.render("notLoggedIn", templateVars)
+  } else {
+    res.render("urls_index", templateVars)    
+  }
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies.userID) {
+    res.redirect('/login')
+  }
+
   const templateVars = {
     user: users[req.cookies.userID],
   }
@@ -64,32 +112,42 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies.userID],
   };
   res.render("urls_show", templateVars)
 })
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL].longURL
   res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
   const shortUrl = generateRandomString()
-  urlDatabase[shortUrl] = req.body.longURL
+  
+  urlDatabase[shortUrl] = { 'longURL': req.body.longURL,
+                            'userID': req.cookies.userID }
+  console.log(urlDatabase[shortUrl]);
   res.redirect(`/urls/${shortUrl}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]
-  res.redirect(`/urls/`);
+  const cookieUser = req.cookies.userID
+  const shortURL = req.params.shortURL
+  if (cookieUser !== urlDatabase[shortURL]['userID']) {
+    console.log('permission to delete *DENIED*')
+  } else {
+    delete urlDatabase[req.params.shortURL]
+    res.redirect(`/urls/`);    
+  }
+
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
   console.log(req.body.newURL)
   // urlDatabase[shortURL] = req.body
-  urlDatabase[req.params.shortURL] = req.body.newURL
+  urlDatabase[req.params.shortURL].longURL = req.body.newURL
   res.redirect('/urls')
 })
 
@@ -98,23 +156,18 @@ app.post("/login", (req, res) => {
   const userPassword = req.body.password;
   //get email's Id
   const user = emailCheck(users, userEmail)
-  console.log(users[user].email)
-
-  // "userRandomID": {
-  //   id: "userRandomID", 
-  //   email: "user@example.com", 
-  //   password: "purple-monkey-dinosaur"
-  // },
 
   //check if user's email exists
   if (user) {
     //check if password matches
     if (userPassword === users[user].password) {
+      //set cookie of logged in user
       res.cookie("userID", user)
       res.redirect('/urls')
     }
+  } else {
+    res.sendStatus(403)    
   }
-   res.sendStatus(403)
 })
 
 app.post("/logout", (req, res) => {

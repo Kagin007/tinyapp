@@ -23,25 +23,9 @@
           <th scope='col'>Delete</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- OLD: shortUrl: longUrl -->
-        <!-- NEW: shorturl: {longUrl, userID}-->
-        
-        <% for(let url in urls) { %>
-          <tr>
-            <td><%= url %></td>
-            <td><%= urls[url].longURL %></td>
 
-            <!-- Adam: adding EDIT button-->
-            <td><form method="GET" action="/urls/<%=url%>"><button type="submit" class="btn btn-outline-primary"> Edit </button></form></td>  
-
-            <!-- Adam: adding DELETE button-->
-            <td><form method="POST" action="/urls/<%=url%>/delete"><button type="submit" class="btn btn-outline-danger"> Delete </button></form></td>
-
-          </tr>
-        <% } %>
-      </tbody>
     </table>
+     <h1>Please login or register to enjoy this wonderful website!</h1>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
