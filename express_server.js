@@ -110,15 +110,15 @@ const users = {
 app.get("/urls", (req, res) => {
   const cookiesUser = req.session.userID;
   //if user is not logged in they are redirected to the register page
-  const filteredByUser = filterUserID(urlDatabase, cookiesUser);
+  const userUrls = filterUserID(urlDatabase, cookiesUser);
   const templateVars = {
     user: users[cookiesUser],
-    urls: filteredByUser,
+    urls: userUrls,
   };
   if (cookiesUser) {
     res.render("urls_index", templateVars);
   } else {
-    res.render("notLoggedIn", templateVars);
+    res.render("not_logged_in", templateVars);
   }
 });
 

@@ -1,4 +1,4 @@
-//Returns user if email exists in database
+//Returns user object if email exists in database
 const getUserByEmail = (email, database) => {
   for (const user in database) {
     if (database[user]["email"] === email) {
@@ -8,7 +8,7 @@ const getUserByEmail = (email, database) => {
   return false;
 };
 
-//Creates a new Database to render that is unique to the cookies.userID
+//Returns filtered user database object filtered by the cookieUser
 const filterUserID = (database, cookieUser) => {
   let usersUrlDatabase = {};
   for (let key of Object.keys(database)) {
