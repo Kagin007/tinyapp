@@ -2,6 +2,7 @@ const {
   getUserByEmail,
   filterUserID,
   generateRandomString,
+  uniqueCounter,
 } = require("./helpers");
 
 const express = require("express");
@@ -17,7 +18,7 @@ const methodOverride = require('method-override');
 //enables parsing of POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// override with POST having ?_method=DELETE
+// override with POST having ?_method=DELETE and UPDATE
 app.use(methodOverride('_method'));
 
 //enables encryption of cookies
@@ -37,47 +38,41 @@ const urlDatabase = {
   sgq3y6: {
     longURL: "https://www.tsn.ca",
     userID: "userRandomID",
-    count: 0,
-    clicker: {
-      userID: ['aJ48lW'],
-      uniqueClicks: 0
-    }
+    count: 1,
+    clicker: ['aJ48lW'],
+    createdDate: "Fri Jan 28 2022 08:50:11 GMT-0500 (Eastern Standard Time)"
   },
+
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW",
-    count: 0,
-    clicker: {
-      userID: ['aJ48lW'],
-      uniqueClicks: 0
-    }
+    count: 3,
+    clicker: ['aJ48lW', 'adam', 'bob'],
+    createdDate: "Fri Jan 28 2022 08:50:11 GMT-0500 (Eastern Standard Time)"
   },
+
   i3BoGr: {
     longURL: "https://www.pokemon.ca",
     userID: "aJ48lW",
-    count: 0,
-    clicker: {
-      userID: ['aJ48lW'],
-      uniqueClicks: 0
-    }
+    count: 1,
+    clicker: ['aJ48lW'],
+    createdDate: "Fri Jan 28 2022 08:50:11 GMT-0500 (Eastern Standard Time)"
   },
+
   1234: {
     longURL: "https://www.google.ca",
     userID: "userRandomID",
-    count: 0,
-    clicker: {
-      userID: 'aJ48lW',
-      uniqueClicks: 0
-    }
+    count: 1,
+    clicker: ['aJ48lW'],
+    createdDate: "Fri Jan 28 2022 08:50:11 GMT-0500 (Eastern Standard Time)"
   },
+
   12345: {
     longURL: "https://www.cooking.ca",
     userID: "userRandomID",
-    count: 0,
-    clicker: {
-      userID: 'aJ48lW',
-      uniqueClicks: 0
-    }
+    count: 1,
+    clicker: ['aJ48lW'],
+    createdDate: "Fri Jan 28 2022 08:50:11 GMT-0500 (Eastern Standard Time)"
   },
 };
 
@@ -95,7 +90,7 @@ const users = {
   },
   aJ48lW: {
     id: "aJ48lW",
-    email: "adamschulte148@hotmail.com",
+    email: "super-man@dailyplanet.com",
     password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
   eJ48GW: {
@@ -154,7 +149,7 @@ app.get("/u/:shortURL", (req, res) => {
   //add a counter for number of clicks
   urlDatabase[req.params.shortURL]['count']++;
   //add counter for unique clicks and if click is new, add user to array
-  uniqueCounter(req.params.shortURL, req.session.userID);
+  uniqueCounter(urlDatabase, req.params.shortURL, req.session.userID);
 
   res.redirect(longURL);
 });
@@ -166,10 +161,8 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.userID,
     count: 0,
-    clicker: {
-      userID: [],
-      uniqueClicks: 0
-    }
+    clicker: [],
+    createdDate: new Date()
   };
   res.redirect(`/urls/${shortUrl}`);
 });
@@ -281,13 +274,3 @@ app.listen(PORT, () => {
   console.log(`TINYapp listening on port ${PORT}!`);
 });
 
-//iterates the uniqueClick value if a unique click is found for the urlDatabase
-const uniqueCounter = (urlClicked, userCookie) => {
-
-  const pathToUserIdArray = urlDatabase[urlClicked]['clicker']['userID'];
-  
-  if (!pathToUserIdArray.includes(userCookie)) {
-    urlDatabase[urlClicked]['clicker']['uniqueClicks']++;
-    pathToUserIdArray.push(userCookie);
-  }
-};

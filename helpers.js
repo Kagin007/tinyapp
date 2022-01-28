@@ -17,7 +17,8 @@ const filterUserID = (database, cookieUser) => {
         longURL: database[key]["longURL"],
         userID: database[key]["userID"],
         count: database[key]['count'],
-        clicker: database[key]['clicker']
+        clicker: database[key]['clicker'],
+        createdDate: database[key]['createdDate']
       };
     }
   }
@@ -29,11 +30,16 @@ const generateRandomString = () => {
   return (Math.random() + 1).toString(36).substring(6);
 };
 
-
-
+//pushes new users to the url's 'clicker' array if a unique user clicks on the short url
+const uniqueCounter = (database, urlClicked, userCookie) => {
+  if (!database[urlClicked]['clicker'].includes(userCookie)) {
+    database[urlClicked]['clicker'].push(userCookie);
+  }
+};
 
 module.exports = {
   getUserByEmail,
   filterUserID,
   generateRandomString,
+  uniqueCounter
 };
