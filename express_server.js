@@ -18,7 +18,7 @@ const methodOverride = require('method-override');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // override with POST having ?_method=DELETE
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
 
 //enables encryption of cookies
 app.use(
@@ -138,7 +138,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!req.session.userID) {
     res.status("401").send("Unauthorized access. Police have been dispatched");
   } else if (req.session.userID !== urlDatabase[req.params.shortURL]['userID']) {
-    res.status("401").send("You are not authorized!")
+    res.status("401").send("You are not authorized!");
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
@@ -152,9 +152,9 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   //add a counter for number of clicks
-  urlDatabase[req.params.shortURL]['count']++
+  urlDatabase[req.params.shortURL]['count']++;
   //add counter for unique clicks and if click is new, add user to array
-  uniqueCounter(req.params.shortURL, req.session.userID)
+  uniqueCounter(req.params.shortURL, req.session.userID);
 
   res.redirect(longURL);
 });
@@ -208,7 +208,6 @@ app.post("/login", (req, res) => {
   //** BIG CHANGE ** ADDED HASHING to password/
   if (user && bcrypt.compareSync(userPassword, users[user].password)) {
     //set cookie of logged in user
-    // res.cookie("userID", user);
     req.session["userID"] = user;
     res.redirect("/urls");
   } else {
@@ -218,7 +217,6 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  // res.clearCookie("userID");
   res.redirect("/login");
 });
 
@@ -286,13 +284,10 @@ app.listen(PORT, () => {
 //iterates the uniqueClick value if a unique click is found for the urlDatabase
 const uniqueCounter = (urlClicked, userCookie) => {
 
-  const pathToUserIdArray = urlDatabase[urlClicked]['clicker']['userID']
+  const pathToUserIdArray = urlDatabase[urlClicked]['clicker']['userID'];
   
-  const pathToUniqueClicks = urlDatabase[urlClicked]['clicker']['uniqueClicks']
-
-
-if (!pathToUserIdArray.includes(userCookie)) {
-  urlDatabase[urlClicked]['clicker']['uniqueClicks']++
-  pathToUserIdArray.push(userCookie)
+  if (!pathToUserIdArray.includes(userCookie)) {
+    urlDatabase[urlClicked]['clicker']['uniqueClicks']++;
+    pathToUserIdArray.push(userCookie);
   }
-}
+};
