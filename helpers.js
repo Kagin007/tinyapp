@@ -16,6 +16,8 @@ const filterUserID = (database, cookieUser) => {
       usersUrlDatabase[key] = {
         longURL: database[key]["longURL"],
         userID: database[key]["userID"],
+        count: database[key]['count'],
+        clicker: database[key]['clicker']
       };
     }
   }
@@ -26,6 +28,8 @@ const filterUserID = (database, cookieUser) => {
 const generateRandomString = () => {
   return (Math.random() + 1).toString(36).substring(6);
 };
+
+
 
 
 module.exports = {

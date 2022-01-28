@@ -11,10 +11,14 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
+const methodOverride = require('method-override');
 
 //**MIDDLEWARE**
 //enables parsing of POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'))
 
 //enables encryption of cookies
 app.use(
@@ -33,22 +37,47 @@ const urlDatabase = {
   sgq3y6: {
     longURL: "https://www.tsn.ca",
     userID: "userRandomID",
+    count: 0,
+    clicker: {
+      userID: ['aJ48lW'],
+      uniqueClicks: 0
+    }
   },
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW",
+    count: 0,
+    clicker: {
+      userID: ['aJ48lW'],
+      uniqueClicks: 0
+    }
   },
   i3BoGr: {
     longURL: "https://www.pokemon.ca",
     userID: "aJ48lW",
+    count: 0,
+    clicker: {
+      userID: ['aJ48lW'],
+      uniqueClicks: 0
+    }
   },
   1234: {
     longURL: "https://www.google.ca",
     userID: "userRandomID",
+    count: 0,
+    clicker: {
+      userID: 'aJ48lW',
+      uniqueClicks: 0
+    }
   },
   12345: {
     longURL: "https://www.cooking.ca",
     userID: "userRandomID",
+    count: 0,
+    clicker: {
+      userID: 'aJ48lW',
+      uniqueClicks: 0
+    }
   },
 };
 
@@ -66,7 +95,7 @@ const users = {
   },
   aJ48lW: {
     id: "aJ48lW",
-    email: "321@example.com",
+    email: "adamschulte148@hotmail.com",
     password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
   eJ48GW: {
@@ -101,13 +130,15 @@ app.get("/urls/new", (req, res) => {
   if (req.session.userID) {
     res.render("urls_new", templateVars);
   } else {
-    res.render("notLoggedIn", templateVars);
+    res.redirect("/login");
   }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   if (!req.session.userID) {
     res.status("401").send("Unauthorized access. Police have been dispatched");
+  } else if (req.session.userID !== urlDatabase[req.params.shortURL]['userID']) {
+    res.status("401").send("You are not authorized!")
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
@@ -120,6 +151,11 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
+  //add a counter for number of clicks
+  urlDatabase[req.params.shortURL]['count']++
+  //add counter for unique clicks and if click is new, add user to array
+  uniqueCounter(req.params.shortURL, req.session.userID)
+
   res.redirect(longURL);
 });
 
@@ -129,12 +165,16 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortUrl] = {
     longURL: req.body.longURL,
     userID: req.session.userID,
+    count: 0,
+    clicker: {
+      userID: [],
+      uniqueClicks: 0
+    }
   };
-  console.log(urlDatabase[shortUrl]);
   res.redirect(`/urls/${shortUrl}`);
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const cookieUser = req.session.userID;
   const shortURL = req.params.shortURL;
   //check if logged in user matches the userID. If not deleting is denied
@@ -146,7 +186,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/update", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const cookieUser = req.session.userID;
   const shortURL = req.params.shortURL;
   //check if logged in user matches the userID. If not editing is denied
@@ -179,7 +219,7 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   req.session = null;
   // res.clearCookie("userID");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //handles the submission of the registration form to the object
@@ -242,3 +282,17 @@ app.get("/login", (req, res) => {
 app.listen(PORT, () => {
   console.log(`TINYapp listening on port ${PORT}!`);
 });
+
+//iterates the uniqueClick value if a unique click is found for the urlDatabase
+const uniqueCounter = (urlClicked, userCookie) => {
+
+  const pathToUserIdArray = urlDatabase[urlClicked]['clicker']['userID']
+  
+  const pathToUniqueClicks = urlDatabase[urlClicked]['clicker']['uniqueClicks']
+
+
+if (!pathToUserIdArray.includes(userCookie)) {
+  urlDatabase[urlClicked]['clicker']['uniqueClicks']++
+  pathToUserIdArray.push(userCookie)
+  }
+}

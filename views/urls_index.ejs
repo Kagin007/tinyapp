@@ -17,6 +17,10 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <!-- totals number of clicks-->
+          <th scope="col">Clicks</th>
+          <!-- unique click -->
+          <th scope="col">Unique Clicks</th>
           <!-- EDIT col-->
           <th scope='col'>Edit</th>          
           <!-- DELETE col-->
@@ -29,12 +33,15 @@
           <tr>
             <td> <a href="/u/<%= url %>"> <%= url %> </a> </td>
             <td><%= urls[url].longURL %></td>
-
+            <!-- number of clicks -->
+            <td><%= urls[url].count %></td>
+            <!-- unique visitors -->
+            <td><%= urls[url].clicker.uniqueClicks %></td>
             <!-- EDIT button-->
-            <td><form method="GET" action="/urls/<%=url%>"><button type="submit" class="btn btn-outline-primary"> Edit </button></form></td>  
+            <td><form method="GET" action="/urls/<%=url%>?_method=PUT"><button type="submit" class="btn btn-outline-primary"> Edit </button></form></td>  
 
             <!-- DELETE button-->
-            <td><form method="POST" action="/urls/<%=url%>/delete"><button type="submit" class="btn btn-outline-danger"> Delete </button></form></td>
+            <td><form method="POST" action="/urls/<%=url%>?_method=DELETE"><button type="submit" class="btn btn-outline-danger"> Delete </button></form></td>
 
           </tr>
         <% } %>
