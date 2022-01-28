@@ -138,7 +138,6 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(userEmail, users);
 
   //check if user's email exists
-  //** BIG CHANGE ** ADDED HASHING to password/
   if (user && bcrypt.compareSync(userPassword, users[user].password)) {
     //set cookie of logged in user
     req.session["userID"] = user;
