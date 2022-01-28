@@ -1,11 +1,15 @@
-const {getUserByEmail, filterUserID, generateRandomString} = require('./helpers');
+const {
+  getUserByEmail,
+  filterUserID,
+  generateRandomString,
+} = require("./helpers");
 
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
 
 //**MIDDLEWARE**
@@ -13,12 +17,14 @@ const salt = bcrypt.genSaltSync(10);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //enables encryption of cookies
-app.use(cookieSession({
-  name: 'session',
-  keys: ['key1', 'key2']
-}));
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+  })
+);
 
-//enables JS to work with EJS
+//setting ejs as the template engine
 app.set("view engine", "ejs");
 
 //**DATABASES**
@@ -51,22 +57,22 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "123@example.com",
-    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
   aJ48lW: {
     id: "aJ48lW",
     email: "321@example.com",
-    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
   eJ48GW: {
     id: "eJ48GW",
-    email: "321@example.com",
-    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK",
+    email: "ohya@example.com",
+    password: "$2a$10$tzm15bM/sVXZghe9vkdn9O7UamBvXAC2PONMHBl.sm/1cgX7ZK5uK", //**for evaluator**: password is 1234
   },
 };
 
@@ -74,39 +80,42 @@ const users = {
 //main page that displays user's list of URLS.
 app.get("/urls", (req, res) => {
   const cookiesUser = req.session.userID;
-  //if user is not logged in they are redirected to 'notLoggedIn.ejs' that prompts them to login or register  
-  if (!cookiesUser) {
-    return res.redirect("/register");
-  } else {
-    const filteredByUser = filterUserID(urlDatabase, cookiesUser);
-    const templateVars = {
-      user: users[cookiesUser],
-      urls: filteredByUser,
-    };
+  //if user is not logged in they are redirected to the register page
+  const filteredByUser = filterUserID(urlDatabase, cookiesUser);
+  const templateVars = {
+    user: users[cookiesUser],
+    urls: filteredByUser,
+  };
+  if (cookiesUser) {
     res.render("urls_index", templateVars);
+  } else {
+    res.render("notLoggedIn", templateVars);
   }
 });
 
 //if user is not logged in they are redirected to login page. Otherwise, they go to 'urls_new.ejs' where they can generate new shortUrls
 app.get("/urls/new", (req, res) => {
-  if (!req.session.userID) {
-    res.redirect("/login");
-  } else {
-    const templateVars = {
-      user: users[req.session.userID],
-    };
+  const templateVars = {
+    user: users[req.session.userID],
+  };
+  if (req.session.userID) {
     res.render("urls_new", templateVars);
+  } else {
+    res.render("notLoggedIn", templateVars);
   }
 });
 
-//come back to this one to really understand it
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.session.userID],
-  };
-  res.render("urls_show", templateVars);
+  if (!req.session.userID) {
+    res.status("401").send("Unauthorized access. Police have been dispatched");
+  } else {
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user: users[req.session.userID],
+    };
+    res.render("urls_show", templateVars);
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -160,10 +169,10 @@ app.post("/login", (req, res) => {
   if (user && bcrypt.compareSync(userPassword, users[user].password)) {
     //set cookie of logged in user
     // res.cookie("userID", user);
-    req.session['userID'] = user;
+    req.session["userID"] = user;
     res.redirect("/urls");
   } else {
-    res.status(403).send('Login not valid');
+    res.status(403).send("Login not valid");
   }
 });
 
@@ -179,10 +188,14 @@ app.post("/register", (req, res) => {
   const userPassword = req.body.password;
   //check if falsy values were passed in
   if (!userEmail || !userPassword) {
-    res.sendStatus(400);
+    res.status(400).send("Please fill in both email & password");
     //check if the email already exists in the 'database'
   } else if (getUserByEmail(userEmail, users)) {
-    res.sendStatus(400);
+    res
+      .status(400)
+      .send(
+        "That email already exists in our database.\n Please try a different email"
+      );
   } else {
     //encrypt password
     const hashedPassword = bcrypt.hashSync(userPassword, salt);
@@ -195,25 +208,34 @@ app.post("/register", (req, res) => {
     };
 
     //passing the user's object (info) into cookies.
-    req.session['userID'] = userId;
+    req.session["userID"] = userId;
 
     res.redirect("/urls");
   }
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
-    user: users[req.session.userID],
-  };
-  res.render("registration", templateVars);
+  //if user is already logged in, redirect to /urls
+  if (req.session.userID) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = {
+      user: users[req.session.userID],
+    };
+    res.render("registration", templateVars);
+  }
 });
 
 //login form
 app.get("/login", (req, res) => {
-  const templateVars = {
-    user: users[req.session.userID],
-  };
-  res.render("login_form", templateVars);
+  if (!req.session.userID) {
+    const templateVars = {
+      user: users[req.session.userID],
+    };
+    res.render("login_form", templateVars);
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 //the server is always listening!

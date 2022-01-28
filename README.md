@@ -10,6 +10,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["Requires users to register](https://github.com/Kagin007/tinyapp/blob/master/docs/tinyAppRegister.png?raw=true)
 
+## Description
+- Allows users to input a long URL that returns a shortened URL
+- Requires user to register and login to use
 
 ## Dependencies
 

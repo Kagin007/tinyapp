@@ -23,23 +23,12 @@
           <th scope='col'>Delete</th>
         </tr>
       </thead>
-      <tbody>
-        
-        <% for(let url in urls) { %>
-          <tr>
-            <td> <a href="/u/<%= url %>"> <%= url %> </a> </td>
-            <td><%= urls[url].longURL %></td>
 
-            <!-- EDIT button-->
-            <td><form method="GET" action="/urls/<%=url%>"><button type="submit" class="btn btn-outline-primary"> Edit </button></form></td>  
-
-            <!-- DELETE button-->
-            <td><form method="POST" action="/urls/<%=url%>/delete"><button type="submit" class="btn btn-outline-danger"> Delete </button></form></td>
-
-          </tr>
-        <% } %>
-      </tbody>
     </table>
+    <div style='background-color: rgb(241, 234, 92);'>
+      <h1>Please <a href='/login'>login</a> or <a href='/register'>register</a> to enjoy this wonderful website!</h1>      
+    </div>
+
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
