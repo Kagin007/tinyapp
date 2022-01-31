@@ -3,7 +3,6 @@ const {
   filterUserID,
   generateRandomString,
   uniqueCounter,
-
 } = require("./helpers");
 
 //requiring in database objects
@@ -84,32 +83,41 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  //add a counter for number of clicks
-  urlDatabase[req.params.shortURL]['count']++;
-  //add counter for unique clicks and if click is new, add user to array.
-  //length of the array is used to tally unique users in table
-  uniqueCounter(urlDatabase, req.params.shortURL, req.session.userID);
+  if (!req.session.userID) {
+    res.status("401").send("Unauthorized access. Police have been dispatched");
+  } else {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    //add a counter for number of clicks
+    urlDatabase[req.params.shortURL]['count']++;
+    //add counter for unique clicks and if click is new, add user to array.
+    //length of the array is used to tally unique users in table
+    uniqueCounter(urlDatabase, req.params.shortURL, req.session.userID);
 
-  res.redirect(longURL);
+    res.redirect(longURL);    
+  }
 });
 
 app.post("/urls", (req, res) => {
-  const shortUrl = generateRandomString();
+  if (!req.session.userID) {
+    res.status("401").send("Unauthorized access. Police have been dispatched");
+  } else {
+    const shortUrl = generateRandomString();
 
-  urlDatabase[shortUrl] = {
-    longURL: req.body.longURL,
-    userID: req.session.userID,
-    count: 0,
-    clicker: [],
-    createdDate: new Date()
-  };
-  res.redirect(`/urls/${shortUrl}`);
+    urlDatabase[shortUrl] = {
+      longURL: req.body.longURL,
+      userID: req.session.userID,
+      count: 0,
+      clicker: [],
+      createdDate: new Date()
+    };
+    res.redirect(`/urls/${shortUrl}`);    
+  }
 });
 
 app.delete("/urls/:shortURL", (req, res) => {
   const cookieUser = req.session.userID;
   const shortURL = req.params.shortURL;
+  
   //check if logged in user matches the userID. If not deleting is denied
   if (cookieUser !== urlDatabase[shortURL]["userID"]) {
     console.log("permission to delete *DENIED*");
