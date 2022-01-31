@@ -39,6 +39,11 @@ app.use(
 app.set("view engine", "ejs");
 
 //**ROUTES**
+//redirect to login page if user inputs root url
+app.get("/", (req, res) => {
+  res.redirect('/login')
+})
+
 //main page that displays user's list of URLS.
 app.get("/urls", (req, res) => {
   const cookiesUser = req.session.userID;
@@ -98,6 +103,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  
   if (!req.session.userID) {
     res.status("401").send("Unauthorized access. Police have been dispatched");
   } else {
